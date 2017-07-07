@@ -11,8 +11,6 @@ import com.anand.nobroker.R;
 import com.anand.nobroker.events.ErrorEvent;
 import com.anand.nobroker.events.PropertiesEvent;
 import com.anand.nobroker.model.pojo.QueryValues;
-import com.anand.nobroker.util.ImageCache;
-import com.anand.nobroker.util.ImageFetcher;
 import com.anand.nobroker.view.PaginationScrollListener;
 import com.anand.nobroker.view.adapter.PropertiesAdapter;
 import com.anand.nobroker.view.presenter.MainPresenter;
@@ -34,13 +32,6 @@ public class MainActivity extends AppCompatActivity {
     private long total = 21;
     private long fetched = 0;
 
-    private static final String TAG = "ImageGridFragment";
-    private static final String IMAGE_CACHE_DIR = "thumbs";
-
-    private int mImageThumbSize;
-    private int mImageThumbSpacing;
-    private ImageFetcher mImageFetcher;
-
     //    @Inject
 //    MainPresenter mainPresenter;
 
@@ -58,18 +49,7 @@ public class MainActivity extends AppCompatActivity {
         //Dagger
 //        DaggerInjector.get().inject(this);
 
-
-        ImageCache.ImageCacheParams cacheParams =
-                new ImageCache.ImageCacheParams(this, IMAGE_CACHE_DIR);
-
-        cacheParams.setMemCacheSizePercent(0.25f); // Set memory cache to 25% of app memory
-
-        // The ImageFetcher takes care of loading images into our ImageView children asynchronously
-        mImageFetcher = new ImageFetcher(this);
-        mImageFetcher.setLoadingImage(R.drawable.empty_photo);
-        mImageFetcher.addImageCache(cacheParams);
-
-        adapter = new PropertiesAdapter(mImageFetcher);
+        adapter = new PropertiesAdapter();
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         propertiesList.setLayoutManager(layoutManager);
@@ -108,22 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadNextPage() {
         QueryValues queryValues = new QueryValues("2", "BHK3", "AP", "FULLY_FURNISHED");
-
         mainPresenter.loadProperties(true, queryValues);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mImageFetcher.setExitTasksEarly(false);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mImageFetcher.setPauseWork(false);
-        mImageFetcher.setExitTasksEarly(true);
-        mImageFetcher.flushCache();
     }
 
     @Override
@@ -136,12 +101,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mImageFetcher.closeCache();
     }
 
     @Subscribe(threadMode =  ThreadMode.MAIN)

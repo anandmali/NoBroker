@@ -14,7 +14,7 @@ import com.anand.nobroker.R;
 import com.anand.nobroker.model.pojo.Datum;
 import com.anand.nobroker.model.pojo.ImagesMap;
 import com.anand.nobroker.model.pojo.Photo;
-import com.anand.nobroker.util.ImageFetcher;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -27,11 +27,9 @@ public class PropertiesAdapter extends RecyclerView.Adapter<PropertiesAdapter.Vi
 
     private List<Datum> dataList;
     private Context context;
-    private ImageFetcher imageFetcher;
     int width;
 
-    public PropertiesAdapter(ImageFetcher imageFetcher) {
-        this.imageFetcher = imageFetcher;
+    public PropertiesAdapter() {
         this.dataList = new ArrayList<>();
     }
 
@@ -65,15 +63,9 @@ public class PropertiesAdapter extends RecyclerView.Adapter<PropertiesAdapter.Vi
             Photo photo = datum.getPhotos().get(0);
             ImagesMap imagesMap = photo.getImagesMap();
             String imgKey = imagesMap.getOriginal();
-//            loadImage(imgKey, holder.img);
+            loadImage(imgKey, holder.img);
 
-            // Finally load the image asynchronously into the ImageView, this also takes care of
-            // setting a placeholder image while the background thread runs
-
-            imageFetcher.setImageSize(width, 200);
-            imageFetcher.loadImage(getUrl(imgKey), holder.img);
         }
-
     }
 
     private Object getUrl(String imgKey) {
@@ -106,8 +98,6 @@ public class PropertiesAdapter extends RecyclerView.Adapter<PropertiesAdapter.Vi
     }
 
     public void loadImage(final String imgId, final ImageView imageView) {
-        //get your image view
-        //    final ImageView imageView = (ImageView) view.findViewById(R.id.imgFilePreview);
 
         String[] seperated = imgId.split("_");
 
@@ -117,6 +107,7 @@ public class PropertiesAdapter extends RecyclerView.Adapter<PropertiesAdapter.Vi
         picasso.setIndicatorsEnabled(false);
         picasso.load(url)
                 .centerInside()
+                .networkPolicy(NetworkPolicy.OFFLINE)
                 .fit()
                 .into(imageView, new com.squareup.picasso.Callback(){
                     @Override
