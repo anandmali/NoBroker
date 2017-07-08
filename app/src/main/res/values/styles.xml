@@ -8,4 +8,26 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="TypeText">
+        <item name="android:padding">10dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginRight">10dp</item>
+        <item name="android:layout_marginTop">4dp</item>
+    </style>
+
+    <style name="FilterHeaderText">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="filterParentLayout">
+        <item name="android:padding">8dp</item>
+    </style>
+
+    <style name="AppTheme.FullScreenDialog" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
+
+
 </resources>
