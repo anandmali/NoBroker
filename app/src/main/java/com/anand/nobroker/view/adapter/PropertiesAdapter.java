@@ -114,6 +114,11 @@ public class PropertiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         notifyDataSetChanged();
     }
 
+    public void clearList() {
+        dataList.clear();
+        notifyDataSetChanged();
+    }
+
     class ItemView extends RecyclerView.ViewHolder {
         @BindView(R.id.txtTitle) TextView txtTitle;
         @BindView(R.id.img) ImageView img;

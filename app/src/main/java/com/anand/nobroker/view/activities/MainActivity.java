@@ -9,9 +9,12 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.anand.nobroker.R;
 import com.anand.nobroker.events.ErrorEvent;
+import com.anand.nobroker.events.HttpErrorEvent;
+import com.anand.nobroker.events.IOErrorEvent;
 import com.anand.nobroker.events.PropertiesEvent;
 import com.anand.nobroker.model.pojo.QueryValues;
 import com.anand.nobroker.view.PaginationScrollListener;
@@ -35,11 +38,11 @@ implements FilterSelectionListener {
     private int pageCount = 1;
     private MainPresenter mainPresenter = new MainPresenter();
     private Boolean isLoading = false;
-    private boolean isLastPage = false;
     private long totalProperties = 0;
     private long fetchedProperties = 0;
-    private long fetched = 0;
-    private Boolean isFilterApplyed = false;
+    private String type = null;
+    private String buildingType = null;
+    private String furnishType = null;
 
     //@Inject
     //MainPresenter mainPresenter;
@@ -67,9 +70,11 @@ implements FilterSelectionListener {
         propertiesList.addOnScrollListener(new PaginationScrollListener(layoutManager) {
             @Override
             protected void loadMoreItems() {
-                isLoading = true;
-                pageCount += 1; //Increment page index to load the next one
-                loadNextPage();
+                if (!isLoading() && fetchedProperties < totalProperties) {
+                    isLoading = true;
+                    pageCount += 1;
+                    loadProperties();
+                }
             }
 
             @Override
@@ -87,12 +92,11 @@ implements FilterSelectionListener {
                 return isLoading;
             }
         });
-        QueryValues queryValues = new QueryValues();
-        mainPresenter.loadProperties(true, queryValues);
+        loadProperties();
     }
 
-    private void loadNextPage() {
-        QueryValues queryValues = new QueryValues("2", "BHK3", "AP", "FULLY_FURNISHED");
+    private void loadProperties() {
+        QueryValues queryValues = new QueryValues(pageCount, type, buildingType, furnishType);
         mainPresenter.loadProperties(true, queryValues);
     }
 
@@ -110,28 +114,61 @@ implements FilterSelectionListener {
 
     @Subscribe(threadMode =  ThreadMode.MAIN)
     public void onEventMainThread(PropertiesEvent properties) {
-        txtLoading.setVisibility(View.GONE);
-        adapter.addPosts(properties.getProperteies().getData());
-        totalProperties = properties.getProperteies().getOtherParams().getTotalCount();
-        fetchedProperties = fetchedProperties + properties.getProperteies().getData().size();
+        loadingCompleteSetup();
+        if (properties.getProperteies().getData().size() > 0) {
+            adapter.addPosts(properties.getProperteies().getData());
+            totalProperties = properties.getProperteies().getOtherParams().getTotalCount();
+            fetchedProperties = fetchedProperties + properties.getProperteies().getData().size();
+        } else {
+            Toast.makeText(this, "No properties found", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(HttpErrorEvent httpErrorEvent) {
+        loadingCompleteSetup();
+        Toast.makeText(this, "Check network connectivity", Toast.LENGTH_LONG).show();
+        Log.e("Error main", httpErrorEvent.getE().code()+"");
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(IOErrorEvent errorEvent) {
+        loadingCompleteSetup();
+        Toast.makeText(this, "Wrong values selected", Toast.LENGTH_LONG).show();
+        Log.e("Error main", errorEvent.getE()+"");
     }
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(ErrorEvent errorEvent) {
-        Log.e("Error main", errorEvent.getE().code()+"");
+        loadingCompleteSetup();
+        Toast.makeText(this, "Could not make the request", Toast.LENGTH_LONG).show();
+        Log.e("Error main", "Something went wrong");
     }
 
     @Override
     public void onFilterSelection(String type, String buildingType, String furnishType) {
-
+        this.type = type;
+        this.buildingType = buildingType;
+        this.furnishType = furnishType;
+        loadProperties();
+        adapter.clearList();
+        txtLoading.setVisibility(View.VISIBLE);
     }
 
+    @SuppressWarnings("unused")
     @OnClick(R.id.btnFilter)
     public void openFilter(FloatingActionButton floatingActionButton) {
         FragmentManager manager = getSupportFragmentManager();
         FilterFragment fragment =
                 FilterFragment.newInstance();
         fragment.show(manager, FilterFragment.class.getSimpleName());
+    }
+
+    private void loadingCompleteSetup() {
+        txtLoading.setVisibility(View.GONE);
+        isLoading = false;
     }
 }
