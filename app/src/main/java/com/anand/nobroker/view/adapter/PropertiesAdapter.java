@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,65 +16,97 @@ import com.anand.nobroker.model.pojo.Photo;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class PropertiesAdapter extends RecyclerView.Adapter<PropertiesAdapter.ViewHolder> {
+public class PropertiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Datum> dataList;
     private Context context;
-    int width;
+    private static final int TYPE_ITEM = 1;
+    private static final int TYPE_FOOTER = 2;
 
     public PropertiesAdapter() {
         this.dataList = new ArrayList<>();
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         context = parent.getContext();
-        View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item, parent, false);
-        return new ViewHolder(itemView);
+        if (viewType == TYPE_ITEM) {
+            View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.list_item, parent, false);
+            return new ItemView(itemView);
+        } else if (viewType == TYPE_FOOTER) {
+            View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.list_item_loader, parent, false);
+            return new LoaderView(itemView);
+        }
+        throw new RuntimeException("No view type mentioned");
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
 
-        Datum datum = dataList.get(position);
+        if (holder instanceof ItemView) {
+            Datum datum = dataList.get(position);
 
-        holder.txtTitle.setText(datum.getTitle());
-        holder.txtAddress.setText(datum.getPropertyTitle());
+            ItemView itemView = (ItemView) holder;
+            //Set title
+            itemView.txtTitle.setText(datum.getTitle());
 
+            //Street address
+            itemView.txtAddress.setText(datum.getStreet());
 
-        holder.img.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
+            //Rent
+            NumberFormat nf = NumberFormat.getInstance();
+            StringBuilder builder = new StringBuilder(context.getResources().getString(R.string.Rs));
+            long price = datum.getRent();
+            String formatted = nf.format(price);
+            builder.append(" ");
+            builder.append(formatted);
+            itemView.txtPrice.setText(builder);
 
-                width = holder.img.getWidth();
+            //Furnishing
+            itemView.txtDesc.setText(datum.getFurnishingDesc());
+
+            //Lease type
+            String firstLetter = datum.getLeaseType().substring(0, 1).toUpperCase();
+            String restLetters = datum.getLeaseType().substring(1).toLowerCase();
+            itemView.txtAllowed.setText(new StringBuilder(firstLetter).append(restLetters));
+
+            //Area
+            StringBuilder builder1 = new StringBuilder();
+            builder1.append(datum.getPropertySize());
+            builder1.append(" ");
+            builder1.append("Sq.ft");
+            itemView.txtArea.setText(builder1);
+
+            //Build type
+
+            //Load first original image
+            if (datum.getPhotoAvailable()) {
+                Photo photo = datum.getPhotos().get(0);
+                ImagesMap imagesMap = photo.getImagesMap();
+                String imgKey = imagesMap.getOriginal();
+                loadImage(imgKey, itemView.img);
             }
-        });
-
-
-        if (datum.getPhotoAvailable()) {
-            Photo photo = datum.getPhotos().get(0);
-            ImagesMap imagesMap = photo.getImagesMap();
-            String imgKey = imagesMap.getOriginal();
-            loadImage(imgKey, holder.img);
-
         }
     }
 
-    private Object getUrl(String imgKey) {
-        String[] seperated = imgKey.split("_");
-        return  "http://d3snwcirvb4r88.cloudfront.net/images/" + seperated[0] + "/" + imgKey;
-    }
 
     @Override
     public int getItemCount() {
         return dataList.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return (position > dataList.size() ? TYPE_FOOTER : TYPE_ITEM);
     }
 
     public void addPosts(List<Datum> data) {
@@ -83,15 +114,22 @@ public class PropertiesAdapter extends RecyclerView.Adapter<PropertiesAdapter.Vi
         notifyDataSetChanged();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
-        @BindView(R.id.txtTitle)
-        TextView txtTitle;
-        @BindView(R.id.img)
-        ImageView img;
+    class ItemView extends RecyclerView.ViewHolder {
+        @BindView(R.id.txtTitle) TextView txtTitle;
+        @BindView(R.id.img) ImageView img;
         @BindView(R.id.txtAddress) TextView txtAddress;
         @BindView(R.id.txtDesc) TextView txtDesc;
         @BindView(R.id.txtPrice) TextView txtPrice;
-        public ViewHolder(View itemView) {
+        @BindView(R.id.txtAllowed) TextView txtAllowed;
+        @BindView(R.id.txtArea) TextView txtArea;
+        ItemView(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+    class LoaderView extends RecyclerView.ViewHolder {
+        LoaderView(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
@@ -99,13 +137,9 @@ public class PropertiesAdapter extends RecyclerView.Adapter<PropertiesAdapter.Vi
 
     public void loadImage(final String imgId, final ImageView imageView) {
 
-        String[] seperated = imgId.split("_");
-
-        final String url = "http://d3snwcirvb4r88.cloudfront.net/images/" + seperated[0] + "/" + imgId;
-        Log.e("Url ", url);
         Picasso picasso = Picasso.with(context);
         picasso.setIndicatorsEnabled(false);
-        picasso.load(url)
+        picasso.load(getUrl(imgId))
                 .centerInside()
                 .networkPolicy(NetworkPolicy.OFFLINE)
                 .fit()
@@ -118,7 +152,7 @@ public class PropertiesAdapter extends RecyclerView.Adapter<PropertiesAdapter.Vi
                     @Override
                     public void onError () {
                         Picasso.with(context)
-                                .load(url)
+                                .load(getUrl(imgId))
                                 .fit()
                                 .centerInside()
                                 .into(imageView);
@@ -128,4 +162,8 @@ public class PropertiesAdapter extends RecyclerView.Adapter<PropertiesAdapter.Vi
                 });
     }
 
+    private String getUrl(String imgKey) {
+        String[] seperated = imgKey.split("_");
+        return  "http://d3snwcirvb4r88.cloudfront.net/images/" + seperated[0] + "/" + imgKey;
+    }
 }

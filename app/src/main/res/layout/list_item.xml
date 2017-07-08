@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView android:layout_width="match_parent"
+<android.support.v7.widget.CardView
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tool="http://schemas.android.com/tools"
@@ -11,15 +12,17 @@
         >
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="70dp"
             android:orientation="horizontal"
             android:weightSum="10"
+            android:gravity="center_vertical"
             >
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="8"
+                android:layout_height="match_parent"
+                android:layout_weight="7"
                 android:orientation="vertical"
+                android:padding="8dp"
                 >
                 <TextView
                     android:id="@+id/txtTitle"
@@ -28,6 +31,9 @@
                     android:maxLines="1"
                     android:ellipsize="end"
                     tool:text="Title"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_gravity="top"
                     />
                 <TextView
                     android:id="@+id/txtAddress"
@@ -36,59 +42,137 @@
                     android:maxLines="2"
                     android:ellipsize="end"
                     tool:text="Title"
+                    android:textSize="12sp"
                     />
-
             </LinearLayout>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.02"
+                android:background="@android:color/darker_gray"
+                />
             <ImageView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_action_fav"
-                android:layout_weight="2"
+                android:layout_weight="1.5"
+                android:padding="4dp"
+                />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.02"
+                android:background="@android:color/darker_gray"
+                />
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_action_call"
+                android:layout_weight="1.5"
+                android:padding="4dp"
                 />
         </LinearLayout>
-        <com.anand.nobroker.util.RecyclingImageView
+        <ImageView
             android:id="@+id/img"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:adjustViewBounds="true"
             android:scaleType="fitXY"
+            android:src="@drawable/ic_action_home"
+            android:background="@color/gray_light"
             />
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="70dp"
             android:orientation="horizontal"
-            android:weightSum="3"
+            android:weightSum="10"
             >
             <TextView
                 android:id="@+id/txtPrice"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                tool:text="40,000"
+                android:layout_weight="3.33"
+                tool:text="$ 40,000"
                 android:gravity="center"
                 android:maxLines="1"
                 android:ellipsize="end"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 />
-            <TextView
-                android:id="@+id/txtDesc"
+            <View
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                tool:text="2 BHK, other details"
-                android:maxLines="2"
-                android:ellipsize="end"
+                android:layout_weight="0.02"
+                android:background="@android:color/darker_gray"
                 />
-            <TextView
-                android:id="@+id/txtType"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:maxLines="2"
-                android:ellipsize="end"
-                tool:text="BHK"
+                android:orientation="vertical"
+                android:layout_weight="3.33"
+                android:gravity="center_horizontal"
+                >
+                <TextView
+                    android:id="@+id/txtDesc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="bottom"
+                    tool:text="Semi furnished"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textSize="12sp"
+                    />
+                <TextView
+                    android:id="@+id/txtAllowed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="top"
+                    tool:text="Anyone"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textSize="12sp"
+                    android:textAllCaps="false"
+                    />
+            </LinearLayout>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.02"
+                android:background="@android:color/darker_gray"
                 />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_weight="3.33"
+                android:gravity="center_horizontal"
+                >
+                <TextView
+                    android:id="@+id/txtArea"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="bottom"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    tool:text="14 Sq ft"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    />
+                <TextView
+                    android:id="@+id/txtBuilt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="top"
+                    android:text="Built up area"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textSize="12sp"
+                    />
+            </LinearLayout>
 
         </LinearLayout>
     </LinearLayout>

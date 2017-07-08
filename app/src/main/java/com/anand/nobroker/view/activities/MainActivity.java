@@ -5,7 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.widget.Toast;
+import android.view.View;
+import android.widget.TextView;
 
 import com.anand.nobroker.R;
 import com.anand.nobroker.events.ErrorEvent;
@@ -32,11 +33,13 @@ public class MainActivity extends AppCompatActivity {
     private long total = 21;
     private long fetched = 0;
 
-    //    @Inject
-//    MainPresenter mainPresenter;
+    //@Inject
+    //MainPresenter mainPresenter;
 
     @BindView(R.id.list)
     RecyclerView propertiesList;
+    @BindView(R.id.txtLoading)
+    TextView txtLoading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         //Dagger
-//        DaggerInjector.get().inject(this);
+        //DaggerInjector.get().inject(this);
 
         adapter = new PropertiesAdapter();
 
@@ -58,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
         propertiesList.addOnScrollListener(new PaginationScrollListener(layoutManager) {
             @Override
             protected void loadMoreItems() {
-                Log.e("Pagination",  "Next page");
                 isLoading = true;
                 pageCount += 1; //Increment page index to load the next one
                 loadNextPage();
@@ -105,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Subscribe(threadMode =  ThreadMode.MAIN)
     public void onEventMainThread(PropertiesEvent properties) {
-        Log.e("Response", properties.getProperteies().getMessage()+"");
+        txtLoading.setVisibility(View.GONE);
         adapter.addPosts(properties.getProperteies().getData());
         total = properties.getProperteies().getOtherParams().getTotalCount();
         fetched = fetched + properties.getProperteies().getData().size();
@@ -114,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(ErrorEvent errorEvent) {
-        Toast.makeText(this, "Error ", Toast.LENGTH_LONG).show();
         Log.e("Error main", errorEvent.getE().code()+"");
     }
 }
