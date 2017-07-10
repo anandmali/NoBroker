@@ -13,6 +13,8 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
+
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -20,8 +22,14 @@ import rx.schedulers.Schedulers;
 
 public class MainPresenter {
 
-    public void loadProperties(boolean b, QueryValues queryValues) {
-        NoBrokerApi noBrokerApi = new NoBrokerApi();
+    public NoBrokerApi noBrokerApi;
+
+    @Inject
+    public MainPresenter(NoBrokerApi noBrokerApi) {
+        this.noBrokerApi = noBrokerApi;
+    }
+
+    public void loadProperties(QueryValues queryValues) {
         noBrokerApi.getPropertiesObservable(queryValues.getFilterQueryMap())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.anand.nobroker.R;
+import com.anand.nobroker.dagger.DaggerInjector;
 import com.anand.nobroker.events.ErrorEvent;
 import com.anand.nobroker.events.HttpErrorEvent;
 import com.anand.nobroker.events.IOErrorEvent;
@@ -27,6 +28,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -36,7 +39,6 @@ public class MainActivity extends AppCompatActivity
 
     private PropertiesAdapter adapter;
     private int pageCount = 1;
-    private MainPresenter mainPresenter = new MainPresenter();
     private Boolean isLoading = false;
     private long totalProperties = 0;
     private long fetchedProperties = 0;
@@ -45,8 +47,8 @@ public class MainActivity extends AppCompatActivity
     private String furnishType = null;
     private Boolean isFilterApplied = false;
 
-    //@Inject
-    //MainPresenter mainPresenter;
+    @Inject
+    MainPresenter mainPresenter;
 
     @BindView(R.id.list) RecyclerView propertiesList;
     @BindView(R.id.txtLoading) TextView txtLoading;
@@ -60,7 +62,7 @@ public class MainActivity extends AppCompatActivity
         ButterKnife.bind(this);
 
         //Dagger
-        //DaggerInjector.get().inject(this);
+        DaggerInjector.get().inject(this);
 
         adapter = new PropertiesAdapter();
 
@@ -98,7 +100,7 @@ public class MainActivity extends AppCompatActivity
 
     private void loadProperties() {
         QueryValues queryValues = new QueryValues(pageCount, type, buildingType, furnishType);
-        mainPresenter.loadProperties(true, queryValues);
+        mainPresenter.loadProperties(queryValues);
     }
 
     @Override
