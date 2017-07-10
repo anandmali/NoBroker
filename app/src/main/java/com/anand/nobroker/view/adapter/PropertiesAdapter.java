@@ -94,6 +94,8 @@ public class PropertiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 ImagesMap imagesMap = photo.getImagesMap();
                 String imgKey = imagesMap.getOriginal();
                 loadImage(imgKey, itemView.img);
+            } else {
+                ((ItemView) holder).img.setImageResource(R.drawable.ic_action_home);
             }
         }
     }
