@@ -18,8 +18,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.anand.nobroker.R;
+import com.anand.nobroker.view.Constants;
 import com.anand.nobroker.view.decorator.FilterText;
 import com.anand.nobroker.view.presenter.FilterPresenter;
 import com.anand.nobroker.view.screen_contracts.FilterSelectionContracts;
@@ -34,6 +36,10 @@ public class FilterFragment extends DialogFragment implements FilterSelectionCon
     private Dialog dialog;
     private FilterSelectionListener listener;
     private FilterPresenter presenter = new FilterPresenter();
+    private String type = null;
+    private String buildingType = null;
+    private String furnishType = null;
+    private static final String ARG_IS_FILTER_APPLIED = "ARG_FILTER_APPLIED";
 
     @BindView(R.id.btnFilter) Button btnFilter;
     @BindView(R.id.txtTwoBhk) FilterText txtTwoBhk;
@@ -45,8 +51,12 @@ public class FilterFragment extends DialogFragment implements FilterSelectionCon
     @BindView(R.id.txtFullFurnish) FilterText txtFullFurnish;
     @BindView(R.id.txtSemiFurnish) FilterText txtSemiFurnish;
 
-    public static FilterFragment newInstance() {
-        return new FilterFragment();
+    public static FilterFragment newInstance(Boolean isFilterApplied) {
+        FilterFragment fragment = new FilterFragment();
+        Bundle arg = new Bundle();
+        arg.putBoolean(ARG_IS_FILTER_APPLIED, isFilterApplied);
+        fragment.setArguments(arg);
+        return fragment;
     }
 
     @Override
@@ -107,6 +117,8 @@ public class FilterFragment extends DialogFragment implements FilterSelectionCon
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if (getArguments().getBoolean(ARG_IS_FILTER_APPLIED))
+            presenter.setFilterStates(this);
     }
 
     @OnClick({R.id.txtTwoBhk, R.id.txtThreeBhk, R.id.txtFourBhk, R.id.txtTypeIndependent, R.id.txtTypeFloor, R.id.txtTypeApartment, R.id.txtFullFurnish, R.id.txtSemiFurnish})
@@ -126,12 +138,16 @@ public class FilterFragment extends DialogFragment implements FilterSelectionCon
     @SuppressWarnings("unused")
     @OnClick(R.id.btnFilter)
     public void filterSelected(Button button) {
-        presenter.filterApplied(listener);
+        if (type == null && buildingType == null && furnishType == null) {
+            Toast.makeText(getActivity(), "No filters are selected", Toast.LENGTH_LONG).show();
+        }
+        presenter.filterApplied(listener, type, buildingType, furnishType);
         dismissDialog();
     }
 
     @Override
     public void onTwoBhkSelected() {
+        type = Constants.TYPE_BHK2;
         txtTwoBhk.selected();
         txtThreeBhk.unSelected();
         txtFourBhk.unSelected();
@@ -139,6 +155,7 @@ public class FilterFragment extends DialogFragment implements FilterSelectionCon
 
     @Override
     public void onThreeBhkSelected() {
+        type = Constants.TYPE_BHK3;
         txtTwoBhk.unSelected();
         txtThreeBhk.selected();
         txtFourBhk.unSelected();
@@ -146,6 +163,7 @@ public class FilterFragment extends DialogFragment implements FilterSelectionCon
 
     @Override
     public void onFourBhkSelected() {
+        type = Constants.TYPE_BHK4;
         txtTwoBhk.unSelected();
         txtThreeBhk.unSelected();
         txtFourBhk.selected();
@@ -153,6 +171,7 @@ public class FilterFragment extends DialogFragment implements FilterSelectionCon
 
     @Override
     public void onApartmentSelected() {
+        buildingType = Constants.TYPE_BUILDING_AP;
         txtTypeIndependent.unSelected();
         txtTypeApartment.selected();
         txtTypeFloor.unSelected();
@@ -160,6 +179,7 @@ public class FilterFragment extends DialogFragment implements FilterSelectionCon
 
     @Override
     public void onIndependentHouseSelected() {
+        buildingType = Constants.TYPE_BUILDING_IH;
         txtTypeIndependent.selected();
         txtTypeApartment.unSelected();
         txtTypeFloor.unSelected();
@@ -167,6 +187,7 @@ public class FilterFragment extends DialogFragment implements FilterSelectionCon
 
     @Override
     public void onBuilderFloorSelected() {
+        buildingType = Constants.TYPE_BUILDING_IF;
         txtTypeIndependent.unSelected();
         txtTypeApartment.unSelected();
         txtTypeFloor.selected();
@@ -174,18 +195,23 @@ public class FilterFragment extends DialogFragment implements FilterSelectionCon
 
     @Override
     public void onFullFurnishSelected() {
+        furnishType = Constants.TYPE_FURNISH_FULL;
         txtFullFurnish.selected();
         txtSemiFurnish.unSelected();
     }
 
     @Override
     public void onSemiFurnishSelected() {
+        furnishType = Constants.TYPE_FURNISH_SEMI;
         txtFullFurnish.unSelected();
         txtSemiFurnish.selected();
     }
 
     @Override
     public void onRefresh() {
+        type = null;
+        buildingType = null;
+        furnishType = null;
         txtTwoBhk.unSelected();
         txtThreeBhk.unSelected();
         txtFourBhk.unSelected();
@@ -208,6 +234,16 @@ public class FilterFragment extends DialogFragment implements FilterSelectionCon
         txtSemiFurnish.unSelected();
         txtFullFurnish.unSelected();
         txtSemiFurnish.unSelected();
+    }
+
+    @Override
+    public void setFilterStates(String type, String buildingType, String furnishType) {
+        if (type != null)
+            presenter.restoreFilterState(this, type);
+        if (buildingType != null)
+            presenter.restoreFilterState(this, buildingType);
+        if (furnishType != null)
+            presenter.restoreFilterState(this, furnishType);
     }
 
     public void dismissDialog() {

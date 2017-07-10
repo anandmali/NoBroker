@@ -32,7 +32,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity
-implements FilterSelectionListener {
+        implements FilterSelectionListener {
 
     private PropertiesAdapter adapter;
     private int pageCount = 1;
@@ -43,6 +43,7 @@ implements FilterSelectionListener {
     private String type = null;
     private String buildingType = null;
     private String furnishType = null;
+    private Boolean isFilterApplied = false;
 
     //@Inject
     //MainPresenter mainPresenter;
@@ -150,6 +151,7 @@ implements FilterSelectionListener {
 
     @Override
     public void onFilterSelection(String type, String buildingType, String furnishType) {
+        isFilterApplied = true;
         this.type = type;
         this.buildingType = buildingType;
         this.furnishType = furnishType;
@@ -163,7 +165,7 @@ implements FilterSelectionListener {
     public void openFilter(FloatingActionButton floatingActionButton) {
         FragmentManager manager = getSupportFragmentManager();
         FilterFragment fragment =
-                FilterFragment.newInstance();
+                FilterFragment.newInstance(isFilterApplied);
         fragment.show(manager, FilterFragment.class.getSimpleName());
     }
 

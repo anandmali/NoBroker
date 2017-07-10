@@ -10,4 +10,5 @@ public interface FilterSelectionContracts {
     void onFullFurnishSelected();
     void onSemiFurnishSelected();
     void onRefresh();
+    void setFilterStates(String type, String buildingType, String furnishType);
 }

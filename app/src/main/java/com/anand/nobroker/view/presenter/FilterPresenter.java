@@ -7,55 +7,80 @@ import com.anand.nobroker.view.screen_contracts.FilterSelectionListener;
 
 public class FilterPresenter {
 
-    private String type = null;
-    private String buildingType = null;
-    private String furnishType = null;
+    private static String type = null;
+    private static String buildingType = null;
+    private static String furnishType = null;
 
     public void filterSelections(FilterSelectionContracts contracts, int filterId) {
         switch (filterId) {
             case R.id.txtTwoBhk:
-                type = Constants.TYPE_BHK2;
                 contracts.onTwoBhkSelected();
                 break;
             case R.id.txtThreeBhk:
-                type = Constants.TYPE_BHK3;
                 contracts.onThreeBhkSelected();
                 break;
             case R.id.txtFourBhk:
-                type = Constants.TYPE_BHK4;
                 contracts.onFourBhkSelected();
                 break;
             case R.id.txtTypeIndependent:
-                buildingType = Constants.TYPE_BUILDING_IH;
                 contracts.onIndependentHouseSelected();
                 break;
             case R.id.txtTypeFloor:
-                buildingType = Constants.TYPE_BUILDING_IF;
                 contracts.onBuilderFloorSelected();
                 break;
             case R.id.txtTypeApartment:
-                buildingType = Constants.TYPE_BUILDING_AP;
                 contracts.onApartmentSelected();
                 break;
             case R.id.txtFullFurnish:
-                furnishType = Constants.TYPE_FURNISH_FULL;
                 contracts.onFullFurnishSelected();
                 break;
             case R.id.txtSemiFurnish:
-                furnishType = Constants.TYPE_FURNISH_SEMI;
                 contracts.onSemiFurnishSelected();
                 break;
         }
     }
 
-    public void filterApplied(FilterSelectionListener listener) {
-        listener.onFilterSelection(type, buildingType, furnishType);
+    public void restoreFilterState(FilterSelectionContracts contracts, String filter) {
+        switch (filter) {
+            case Constants.TYPE_BHK2:
+                contracts.onTwoBhkSelected();
+                break;
+            case Constants.TYPE_BHK3:
+                contracts.onThreeBhkSelected();
+                break;
+            case Constants.TYPE_BHK4:
+                contracts.onFourBhkSelected();
+                break;
+            case Constants.TYPE_BUILDING_IH:
+                contracts.onIndependentHouseSelected();
+                break;
+            case Constants.TYPE_BUILDING_IF:
+                contracts.onBuilderFloorSelected();
+                break;
+            case Constants.TYPE_BUILDING_AP:
+                contracts.onApartmentSelected();
+                break;
+            case Constants.TYPE_FURNISH_FULL:
+                contracts.onFullFurnishSelected();
+                break;
+            case Constants.TYPE_FURNISH_SEMI:
+                contracts.onSemiFurnishSelected();
+                break;
+        }
+    }
+
+    public void filterApplied(FilterSelectionListener listener, String type, String buildingType, String furnishType) {
+        FilterPresenter.type = type;
+        FilterPresenter.buildingType = buildingType;
+        FilterPresenter.furnishType = furnishType;
+        listener.onFilterSelection(FilterPresenter.type, FilterPresenter.buildingType, FilterPresenter.furnishType);
     }
 
     public void refreshFilters(FilterSelectionContracts contracts) {
-        type = null;
-        buildingType = null;
-        furnishType = null;
         contracts.onRefresh();
+    }
+
+    public void setFilterStates(FilterSelectionContracts contracts) {
+        contracts.setFilterStates(type, buildingType, furnishType);
     }
 }
